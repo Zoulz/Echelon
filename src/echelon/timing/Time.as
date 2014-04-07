@@ -1,12 +1,11 @@
-/**
- * Created with IntelliJ IDEA.
- * User: Tomas Augustinovic
- * Date: 2013-12-03
- * Time: 10:13
- * To change this template use File | Settings | File Templates.
- */
 package echelon.timing
 {
+	/**
+	 * Time container measuring the elapsed time since the start of
+	 * execution and time elapsed during last frame.
+	 *
+	 * @auther tomas.augustinovic
+	 */
 	public class Time
 	{
 		private var _time:TimeUnit;

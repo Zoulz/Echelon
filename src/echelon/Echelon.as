@@ -18,7 +18,7 @@ package echelon
 	import flash.geom.Rectangle;
 
 	/*
-		Quickspin Bitmap Rendering Engine
+		Echelon Rendering Engine
 	*/
 	final public class Echelon
 	{
