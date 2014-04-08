@@ -37,7 +37,7 @@ package echelon.display
 			return null;
 		}
 
-		public function addChild(obj:DisplayObject):void
+		public function addChild(obj:QDisplayObject):void
 		{
 			if (obj != null)
 			{
@@ -49,34 +49,35 @@ package echelon.display
 			}
 			else
 			{
-				throw new Error("Passed QDisplayObject is NULL.");
+				throw new Error("Passed DisplayObject is NULL.");
 			}
 		}
 
-		public function addChildAt(obj:DisplayObject, index:uint):void
+		public function addChildAt(obj:QDisplayObject, index:uint):void
 		{
 			if (obj != null)
 			{
-				if (index < children.length)
+				if (children.length == 0 || index < children.length)
 				{
 					children.splice(index, 0, obj);
-					if (obj.stage == null)
-					{
-						obj.stage = this.stage;
-					}
 				}
 				else
 				{
 					throw new Error("Index is beyond bounds.");
 				}
+
+				if (obj.stage == null)
+				{
+					obj.stage = this.stage;
+				}
 			}
 			else
 			{
-				throw new Error("Passed QDisplayObject is NULL.");
+				throw new Error("Passed DisplayObject is NULL.");
 			}
 		}
 
-		public function removeChild(obj:DisplayObject):void
+		public function removeChild(obj:QDisplayObject):void
 		{
 			if (obj != null)
 			{
@@ -88,13 +89,34 @@ package echelon.display
 			}
 			else
 			{
-				throw new Error("Passed QDisplayObject is NULL or has no children.");
+				throw new Error("Passed DisplayObject is NULL or has no children.");
+			}
+		}
+
+		public function removeChildAt(index:int):void
+		{
+			if (index < children.length)
+			{
+				children.splice(index, 1);
+			}
+			else
+			{
+				throw new Error("Index is beyond bounds.");
 			}
 		}
 
 		override public function render(time:Time, transform:RenderFrameTransform = null):void
 		{
-			renderChildren(time, transform);    //  TODO maybe copy the method into here, to save a function call.
+			//  This is just a copy of the 'renderChildren' method that is used by subclasses.
+			//  We want to avoid a extra function call here, so that's why.
+			_renderTrans = new RenderFrameTransform();
+			_renderTrans.pos = transform.pos.add(this.pos);
+
+			var len:int = children.length;
+			for (var i:int = 0; i < len; i++)
+			{
+				children[i].render(time, _renderTrans);
+			}
 		}
 
 		protected function renderChildren(time:Time, transform:RenderFrameTransform):void
@@ -102,9 +124,10 @@ package echelon.display
 			_renderTrans = new RenderFrameTransform();
 			_renderTrans.pos = transform.pos.add(this.pos);
 
-			for each (var child:DisplayObject in children)
+			var len:int = children.length;
+			for (var i:int = 0; i < len; i++)
 			{
-				child.render(time, _renderTrans);
+				children[i].render(time, _renderTrans);
 			}
 		}
 	}

@@ -32,9 +32,10 @@ package echelon.display
 		{
 			_renderTrans = new RenderFrameTransform();
 
-			for each (var child:DisplayObject in children)
+			var len:int = children.length;
+			for (var i:int = 0; i < len; i++)
 			{
-				child.render(time, _renderTrans);
+				children[i].render(time, _renderTrans);
 			}
 		}
 	}
