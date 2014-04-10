@@ -1,10 +1,3 @@
-/**
- * Created with IntelliJ IDEA.
- * User: Tomas Augustinovic
- * Date: 2013-12-03
- * Time: 09:59
- * To change this template use File | Settings | File Templates.
- */
 package echelon.display
 {
 	import echelon.rendering.RenderFrameTransform;
@@ -15,15 +8,21 @@ package echelon.display
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	/**
+	 * The most basic of display objects which all others extend from.
+	 * Supplies a position and name. Also keeps track of it's current stage
+	 * and if it changes. Has no visual context and thus requires no rendering.
+	 */
 	public class DisplayObject
 	{
-		public var pos:Point = new Point();
 		public var name:String = "";
 
-		private static var _objCount:uint = 0;
+		private static var _objCount:Number = 0;
 
 		private var _stage:Stage = null;
 		private var _stageUpdated:Signal = new Signal();
+
+		protected var _pos:Point = new Point();
 
 		public function DisplayObject()
 		{
@@ -43,6 +42,31 @@ package echelon.display
 		public function render(time:Time, transform:RenderFrameTransform = null):void
 		{
 			//  NO-OP
+		}
+
+		public function get pos():Point
+		{
+			return _pos;
+		}
+
+		public function set x(value:int):void
+		{
+			pos.x = value;
+		}
+
+		public function get x():int
+		{
+			return pos.x;
+		}
+
+		public function set y(value:int):void
+		{
+			pos.y = value;
+		}
+
+		public function get y():int
+		{
+			return pos.y;
 		}
 
 		public function set stage(value:Stage):void

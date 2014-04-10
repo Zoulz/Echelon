@@ -1,10 +1,8 @@
 package echelon.timing
 {
 	/**
-	 * Time container measuring the elapsed time since the start of
-	 * execution and time elapsed during last frame.
-	 *
-	 * @auther tomas.augustinovic
+	 * Holds the time it takes to render one frame, as well as the elapsed time since QEngine
+	 * was started.
 	 */
 	public class Time
 	{

@@ -5,11 +5,14 @@
  * Time: 14:03
  * To change this template use File | Settings | File Templates.
  */
-package echelon.rendering
+package echelon.rendering.tiles
 {
 	import flash.utils.Dictionary;
 
-	public class TileSheetFactory
+	/**
+	 * The tilesheet manager holds static references to tilesheets for easy (lazy) access.
+	 */
+	public class TileSheetManager
 	{
 		private static var _TILESHEETS:Dictionary = new Dictionary();
 

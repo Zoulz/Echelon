@@ -14,6 +14,9 @@ package echelon.timing.timers
 	import flash.utils.Timer;
 	import flash.utils.getTimer;
 
+	/**
+	 * This timer uses a flash.utils.Timer object to keep track of the time.
+	 */
 	public class TimeBasedTimer implements ITimer
 	{
 		private var _timer:Timer;
@@ -30,7 +33,7 @@ package echelon.timing.timers
 		private function onTimerTick(event:TimerEvent):void
 		{
 			_time.tick(getTimer());
-			_tickHandler(_time);
+			_tickHandler.call(null, _time);
 		}
 
 		public function start(target:DisplayObject):void

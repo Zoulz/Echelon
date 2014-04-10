@@ -5,11 +5,15 @@
  * Time: 13:43
  * To change this template use File | Settings | File Templates.
  */
-package echelon.rendering
+package echelon.rendering.tiles
 {
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 
+	/**
+	 * Holds information about a tile inside a tilesheet. The rectangle region of the texture
+	 * and a offset.
+	 */
 	public class TileData
 	{
 		public var rect:Rectangle;

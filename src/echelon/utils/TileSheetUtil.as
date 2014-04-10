@@ -1,37 +1,33 @@
 /**
  * Created with IntelliJ IDEA.
  * User: Tomas Augustinovic
- * Date: 2013-12-03
- * Time: 09:59
+ * Date: 2014-04-10
+ * Time: 13:22
  * To change this template use File | Settings | File Templates.
  */
-package echelon.rendering
+package echelon.utils
 {
+	import echelon.rendering.tiles.TileData;
+	import echelon.rendering.tiles.TileSheet;
+
 	import flash.display.BitmapData;
-	import flash.display.BlendMode;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 
-	public class TileSheet
+	public class TileSheetUtil
 	{
-		private var _data:BitmapData;
-		private var _tiles:Vector.<TileData>;
-
-		public function TileSheet(data:BitmapData, tilesDef:Vector.<TileData>)
-		{
-			_data = data;
-			_tiles = tilesDef;
-		}
-
-		public function dispose():void
-		{
-			_data.dispose();
-			_tiles = null;
-		}
-
+		/**
+		 * Divides existing bitmap data into tiles.
+		 * @param bitmapData
+		 * @param tileSize
+		 * @param numRows
+		 * @param numColumns
+		 * @return
+		 */
 		public static function fromBitmapData(bitmapData:BitmapData, tileSize:Rectangle, numRows:uint, numColumns:uint):TileSheet
 		{
 			var tiles:Vector.<TileData> = new <TileData>[];
@@ -52,6 +48,14 @@ package echelon.rendering
 			return ret;
 		}
 
+		/**
+		 * Turns a collection of bitmap data into a tilesheet.
+		 * @param bmps
+		 * @param tileSize
+		 * @param numRows
+		 * @param numColumns
+		 * @return
+		 */
 		public static function fromBitmapDataCollection(bmps:Vector.<BitmapData>, tileSize:Rectangle, numRows:uint, numColumns:uint):TileSheet
 		{
 			var bitmapData:BitmapData = new BitmapData(numColumns * tileSize.x, numRows * tileSize.y);
@@ -72,6 +76,9 @@ package echelon.rendering
 			return fromBitmapData(bitmapData, tileSize, numRows, numColumns);
 		}
 
+		/**
+		 * Takes a flash sprite and turns it into a tilesheet (one tile).
+		 */
 		public static function fromSprite(sprite:Sprite):TileSheet
 		{
 			var tiles:Vector.<TileData> = new <TileData>[];
@@ -84,6 +91,11 @@ package echelon.rendering
 			return ret;
 		}
 
+		/**
+		 * Takes a flash movieclip and turns it into a tilesheet animation sequence.
+		 * @param mc
+		 * @return
+		 */
 		public static function fromMovieClip(mc:MovieClip):TileSheet
 		{
 			var tiles:Vector.<TileData> = new <TileData>[];
@@ -91,12 +103,13 @@ package echelon.rendering
 			var curY:int = 0;
 			var maxX:int = 0;
 			var maxY:int = 0;
+			var td:TileData;
 
 			mc.gotoAndStop(1);
 
 			for (var i:uint = 0; i < mc.totalFrames; i++)
 			{
-				var td:TileData = new TileData(new Rectangle(curX, curY, mc.width, mc.height));
+				td = new TileData(new Rectangle(curX, curY, mc.width, mc.height));
 				tiles.push(td);
 
 				mc.nextFrame();
@@ -122,7 +135,7 @@ package echelon.rendering
 			mc.gotoAndStop(1);
 
 			var bitmapData:BitmapData = new BitmapData(Math.round(maxX), Math.round(maxY), true, 0x00000000);
-			for each (var td:TileData in tiles)
+			for each (td in tiles)
 			{
 				var pos:Matrix = new Matrix();
 				pos.translate(td.rect.x, td.rect.y);
@@ -134,6 +147,17 @@ package echelon.rendering
 			return ret;
 		}
 
+		/**
+		 * Parses supplied xml data and turns it into a tilesheet, coupled with the supplied bitmap data.
+		 *
+		 * <tiles>
+		 *     <tile x="0" y="0" width="420" height="420" frameX="-5" frameY="20" />
+		 * </tiles>
+		 *
+		 * @param bitmapData
+		 * @param xml
+		 * @return
+		 */
 		public static function fromXml(bitmapData:BitmapData, xml:XML):TileSheet
 		{
 			var tiles:Vector.<TileData> = new <TileData>[];
@@ -147,21 +171,6 @@ package echelon.rendering
 			var ret:TileSheet = new TileSheet(bitmapData, tiles);
 
 			return ret;
-		}
-
-		public function getTileData(index:uint):TileData
-		{
-			return _tiles[index];
-		}
-
-		public function get length():uint
-		{
-			return _tiles.length;
-		}
-
-		public function get data():BitmapData
-		{
-			return _data;
 		}
 	}
 }

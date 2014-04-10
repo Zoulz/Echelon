@@ -15,13 +15,30 @@ package echelon.rendering
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 
+	/**
+	 * Describes a renderer.
+	 */
 	public interface IRenderer
 	{
-		function simpleDraw(src:BitmapData, srcRect:Rectangle, destPoint:Point, useAlpha:Boolean = true, alpha:Number = 1):void;
-		function advancedDraw(src:DisplayObject, srcRect:Rectangle, transformMx:Matrix = null, colorTransform:ColorTransform = null, blendMode:String = null, clipRect:Rectangle = null, smoothing:Boolean = false):void;
-		function fillRect(rect:Rectangle, color:uint):void;
+		/**
+		 * Performs a render using the supplied data and destination point.
+		 * @param data
+		 * @param dest
+		 */
+		function draw(data:RenderFrameData, dest:Point):void;
+
+		/**
+		 * Applies a filter to the specified region and destination point.
+		 * @param filter
+		 * @param region
+		 * @param dest
+		 */
 		function applyFilter(filter:BitmapFilter, region:Rectangle, dest:Point):void;
 
+		/**
+		 * Sets reference to the target rendering bitmap data buffer.
+		 * @param value
+		 */
 		function set targetRenderBuffer(value:BitmapData):void;
 	}
 }

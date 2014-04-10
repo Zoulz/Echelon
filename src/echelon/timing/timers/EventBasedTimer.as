@@ -1,10 +1,3 @@
-/**
- * Created with IntelliJ IDEA.
- * User: Tomas Augustinovic
- * Date: 2013-12-04
- * Time: 10:06
- * To change this template use File | Settings | File Templates.
- */
 package echelon.timing.timers
 {
 	import echelon.timing.Time;
@@ -13,15 +6,15 @@ package echelon.timing.timers
 	import flash.events.Event;
 	import flash.utils.getTimer;
 
+	/**
+	 * This timer listens for enter frame events on the target
+	 * to track time.
+	 */
 	public class EventBasedTimer implements ITimer
 	{
 		private var _target:DisplayObject;
 		private var _tickHandler:Function;
 		private var _time:Time;
-
-		public function EventBasedTimer()
-		{
-		}
 
 		public function start(target:DisplayObject):void
 		{
@@ -34,7 +27,7 @@ package echelon.timing.timers
 		private function onEnterFrame(event:Event):void
 		{
 			_time.tick(getTimer());
-			_tickHandler(_time);
+			_tickHandler.call(null, _time);
 		}
 
 		public function set tickHandler(handler:Function):void

@@ -15,70 +15,43 @@ package echelon.rendering
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 
+	/**
+	 * Default implementation of the renderer. Uses primarily copyPixels operations, and draw for the
+	 * advanced mode.
+	 */
 	public class Renderer implements IRenderer
 	{
 		private var _target:BitmapData;
-		private var _alphaBmp:BitmapData;
-		private var _alphaRect:Rectangle;
 
 		public function Renderer(targetBuffer:BitmapData = null)
 		{
 			_target = targetBuffer;
-			_alphaBmp = new BitmapData(1, 1, true);
-			_alphaRect = new Rectangle();
 		}
 
-		public function simpleDraw(src:BitmapData, srcRect:Rectangle, destPoint:Point, useAlpha:Boolean = true, alpha:Number = 1):void
+		public function draw(data:RenderFrameData, dest:Point):void
 		{
-			if (alpha < 1)
+			if (data.renderMode & RenderMode.NORMAL)
 			{
-				if (_alphaRect.width == src.width && _alphaRect.height == src.height)
-				{
-					_alphaBmp.fillRect(_alphaRect, toARGB(0x000000, alpha * 255));
-				}
-				else
-				{
-					_alphaBmp.dispose();
-					_alphaBmp = new BitmapData(src.width, src.height, true, toARGB(0x000000, alpha * 255));
-					_alphaRect.width = src.width;
-					_alphaRect.height = src.height;
-				}
-
-				_target.copyPixels(src, srcRect, destPoint, _alphaBmp, null, useAlpha);
+				_target.copyPixels(data.srcData, data.srcRect, dest, null, null, data.mergeAlpha);
 			}
-			else
+			else if (data.renderMode & RenderMode.ALPHA)
 			{
-				_target.copyPixels(src, srcRect, destPoint, null, null, useAlpha);
+				_target.copyPixels(data.srcData, data.srcRect, dest, data.alphaData, null, data.mergeAlpha);
+			}
+			else if (data.renderMode & RenderMode.ADVANCED)
+			{
+				_target.draw(data.srcData, data.transformMx, data.colorTransform, data.blendMode);
 			}
 		}
 
-		public function advancedDraw(src:DisplayObject, srcRect:Rectangle, transformMx:Matrix = null, colorTransform:ColorTransform = null, blendMode:String = null, clipRect:Rectangle = null, smoothing:Boolean = false):void
+		public function applyFilter(filter:BitmapFilter, region:Rectangle, dest:Point):void
 		{
-			_target.draw(src, transformMx, colorTransform, blendMode, clipRect, smoothing);
-		}
-
-		public function fillRect(rect:Rectangle, color:uint):void
-		{
-			_target.fillRect(rect, color);
+			_target.applyFilter(_target, region, dest, filter);
 		}
 
 		public function set targetRenderBuffer(value:BitmapData):void
 		{
 			_target = value;
-		}
-
-		private function toARGB(rgb:uint, newAlpha:uint):uint
-		{
-			var argb:uint = 0;
-			argb = (rgb);
-			argb += (newAlpha << 24);
-
-			return argb;
-		}
-
-		public function applyFilter(filter:BitmapFilter, region:Rectangle, dest:Point):void
-		{
-			_target.applyFilter(_target,  region, dest, filter);
 		}
 	}
 }

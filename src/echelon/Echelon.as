@@ -1,10 +1,3 @@
-/**
- * Created with IntelliJ IDEA.
- * User: Tomas Augustinovic
- * Date: 2013-12-03
- * Time: 09:45
- * To change this template use File | Settings | File Templates.
- */
 package echelon
 {
 	import echelon.display.Stage;
@@ -29,70 +22,58 @@ package echelon
 		private var _stage:Stage;
 		private var _clearRegion:Rectangle;
 		private var _clearColor:uint;
-		private var _tickCallback:Function = null;
+		private var _tickHandler:Function;
 
-		public function Echelon(displaySize:Rectangle, transparent:Boolean = true, fillColor:uint = 0xFF000000, smoothing:Boolean = true)
+		public function Echelon(displaySize:Rectangle, transparent:Boolean = true, fillColor:uint = 0x00000000, smoothing:Boolean = true)
 		{
 			_renderBuffer = new BitmapData(displaySize.width, displaySize.height, transparent, fillColor);
 
 			_displayBmp = new Bitmap(_renderBuffer, PixelSnapping.AUTO, smoothing);
 
-			_stage = new Stage(_renderer);
+			_stage = new Stage(null);
 			_clearColor = fillColor;
 			_clearRegion = displaySize;
 		}
 
 		/**
-		 * Begin the rendering.
+		 * Starts the timer, thus starting the rendering loop.
 		 */
 		public function start():void
 		{
-			if (_timer)
-			{
-				_timer.start(_displayBmp);
-			}
-			else
-			{
-				throw new Error("Echelon has no timer instance.");
-			}
+			_timer.start(_displayBmp);
 		}
 
 		/**
-		 * Stop the rendering.
+		 * Stops the timer, halting rendering.
 		 */
 		public function stop():void
 		{
-			if (_timer)
-			{
-				_timer.end();
-			}
-			else
-			{
-				throw new Error("Echelon has no timer instance.");
-			}
+			_timer.end();
 		}
 
 		/**
-		 * Shut down echelon. Stop rendering and dispose the stage object.
+		 * Stops QEngine and cleans up.
 		 */
-		public function destroy():void
+		public function dispose():void
 		{
 			stop();
+
+			_tickHandler = null;
+			_timer = null;
+			_renderer = null;
 
 			_stage.dispose();
 		}
 
 		/**
-		 * The render loop invoked for each tick of the timer.
+		 * The main rendering loop handler, connected to the timer. Calls the tick handler function and renders all
+		 * the display objects.
 		 * @param time
 		 */
 		private function renderLoop(time:Time):void
 		{
-			//	Tick callback if set.
-			if (_tickCallback)
-			{
-				_tickCallback(time);
-			}
+			//  Notify about tick.
+			_tickHandler.call(null, time);
 
 			//  Transverse the display objects.
 			_renderBuffer.lock();
@@ -102,7 +83,7 @@ package echelon
 		}
 
 		/**
-		 * Return the render target bitmap.
+		 * Return the main rendering canvas. This is where all the display objects gets rendered.
 		 */
 		public function get displayBitmap():Bitmap
 		{
@@ -110,7 +91,8 @@ package echelon
 		}
 
 		/**
-		 * Return the echelon stage object.
+		 * Return the stage object of the display list. This is the root where all subsequent display objects
+		 * are added.
 		 */
 		public function get stage():Stage
 		{
@@ -118,7 +100,7 @@ package echelon
 		}
 
 		/**
-		 * Set reference of timer to use.
+		 * Set the timer object to be used.
 		 * @param value
 		 */
 		public function set timer(value:ITimer):void
@@ -128,7 +110,7 @@ package echelon
 		}
 
 		/**
-		 * Set reference of renderer to use.
+		 * Set the renderer to be used.
 		 * @param value
 		 */
 		public function set renderer(value:IRenderer):void
@@ -139,12 +121,12 @@ package echelon
 		}
 
 		/**
-		 * Set callback function invoked at the beginning of a tick.
+		 * Set a callback handler that is called every timer tick.
 		 * @param value
 		 */
-		public function set tickCallback(value:Function):void
+		public function set tickHandler(value:Function):void
 		{
-			_tickCallback = value;
+			_tickHandler = value;
 		}
 	}
 }

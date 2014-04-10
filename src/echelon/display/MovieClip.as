@@ -1,20 +1,16 @@
-/**
- * Created with IntelliJ IDEA.
- * User: Tomas Augustinovic
- * Date: 2013-12-03
- * Time: 10:01
- * To change this template use File | Settings | File Templates.
- */
 package echelon.display
 {
 	import echelon.rendering.RenderFrameTransform;
-	import echelon.rendering.TileData;
-	import echelon.rendering.TileSheet;
+	import echelon.rendering.tiles.TileData;
+	import echelon.rendering.tiles.TileSheet;
 	import echelon.timing.Time;
 
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	/**
+	 * Renders a animation based on a tilesheet.
+	 */
 	public class MovieClip extends Sprite
 	{
 		public var tileIndex:uint;
@@ -26,7 +22,7 @@ package echelon.display
 		private var _hasStopped:Boolean;
 		private var _tileSheet:TileSheet;
 		private var _tileData:TileData;
-		private var _animationComplete:Signal = new Signal();
+		private var _animationComplete:ISignal = new Signal();
 
 		public function MovieClip(frameRate:uint = 30, loop:Boolean = false)
 		{
@@ -37,18 +33,31 @@ package echelon.display
 			_hasStopped = false;
 		}
 
+		/**
+		 * Enables the movieclip to play it's animation.
+		 */
 		public function play():void
 		{
 			_hasStopped = false;
 		}
 
+		/**
+		 * Disables the movieclip from rendering it's animation. Freezes in it's current frame.
+		 */
 		public function stop():void
 		{
 			_hasStopped = true;
 		}
 
+		/**
+		 * Increments current tile frame based on supplied time. Renders the frame and then
+		 * transverses it's children.
+		 * @param time
+		 * @param transform
+		 */
 		override public function render(time:Time, transform:RenderFrameTransform = null):void
 		{
+			//  Increment tile index based on time.
 			if (!_hasStopped)
 			{
 				_time += time.frameTime.milliseconds;
@@ -56,8 +65,11 @@ package echelon.display
 				{
 					_time -= _frameTime;
 					tileIndex++;
+
 					if (tileIndex == tileSheet.length)
 					{
+						//  If we reached the last frame, check if we are looping, otherwise
+						//  dispatch completion signal.
 						tileIndex = 0;
 						if (_loop == false)
 						{
@@ -68,36 +80,74 @@ package echelon.display
 				}
 			}
 
-			if (visible)
+			//  Render the current frame if visible and has a actual tilesheet reference.
+			if (visible && _tileSheet != null)
 			{
 				_tileData = _tileSheet.getTileData(tileIndex);
-				_renderer.simpleDraw(_tileSheet.data, _tileData.rect, pos.subtract(_tileData.offset).add(transform.pos), transparent, alpha);
+				_renderData.srcRect = _tileData.rect;
+				_renderer.draw(_renderData, pos.subtract(_tileData.offset).add(transform.pos));
 			}
 
-			renderChildren(time, transform);
+			//  Update the render transform.
+			_renderTrans.clear();
+			_renderTrans.pos = transform.pos.add(this.pos);
+
+			//  Render children.
+			_childrenLength = children.length;
+			for (_iterator = 0; _iterator < _childrenLength; _iterator++)
+			{
+				children[_iterator].render(time, _renderTrans);
+			}
+
+			//  Apply filters.
+			_childrenLength = filters.length;
+			for (_iterator = 0; _iterator < _childrenLength; _iterator++)
+			{
+				_renderer.applyFilter(filters[_iterator], size, size.topLeft);
+			}
 		}
 
+		/**
+		 * Get the current frame rate (frames per second) used to calculate frame advancement.
+		 */
 		public function get frameRate():uint
 		{
 			return _frameRate;
 		}
 
+		/**
+		 * Set the current frame rate in "frames per second".
+		 * @param value
+		 */
 		public function set frameRate(value:uint):void
 		{
 			_frameRate = value;
 			_frameTime = (1000 / _frameRate) << 0;
 		}
 
+		/**
+		 * Get the currently used tilesheet.
+		 */
 		public function get tileSheet():TileSheet
 		{
 			return _tileSheet;
 		}
 
+		/**
+		 * Set a tilesheet.
+		 * @param value
+		 */
 		public function set tileSheet(value:TileSheet):void
 		{
 			_tileSheet = value;
+
+			_renderData.srcData = _tileSheet.data;
 		}
 
+		/**
+		 * Signal dispatched when the animation has run through all of it's tiles and the loop
+		 * flag is not activated.
+		 */
 		public function get animationComplete():ISignal
 		{
 			return _animationComplete;

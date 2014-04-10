@@ -1,12 +1,9 @@
-/**
- * Created with IntelliJ IDEA.
- * User: Tomas Augustinovic
- * Date: 2013-12-03
- * Time: 10:05
- * To change this template use File | Settings | File Templates.
- */
 package echelon.timing
 {
+	/**
+	 * TimeUnit handles conversion between different units of time.
+	 * Operates on milliseconds and converts to seconds, minutes, hours.
+	 */
 	public class TimeUnit
 	{
 		private var _ms:int;

@@ -1,45 +1,58 @@
-/**
- * Created with IntelliJ IDEA.
- * User: Tomas Augustinovic
- * Date: 2013-12-03
- * Time: 13:37
- * To change this template use File | Settings | File Templates.
- */
 package echelon.display
 {
 	import echelon.rendering.RenderFrameTransform;
 	import echelon.timing.Time;
 
+	/**
+	 * Adds the functionality to have child display objects under this
+	 * display object.
+	 */
 	public class DisplayObjectContainer extends DisplayObject
 	{
 		public var children:Vector.<DisplayObject> = new <DisplayObject>[];
 
-		private var _renderTrans:RenderFrameTransform;
+		protected var _renderTrans:RenderFrameTransform = new RenderFrameTransform();
+		protected var _childrenLength:int;
+		protected var _iterator:int;
 
+		/**
+		 * Disposes all of the child objects.
+		 */
 		override public function dispose():void
 		{
-			for each (var child:DisplayObject in children)
+			_childrenLength = children.length;
+			for (var i:int = 0; i < _childrenLength; i++)
 			{
-				child.dispose();
+				children[i].dispose();
 			}
 		}
 
+		/**
+		 * Return a child display object by it's name, or NULL if it's not found.
+		 * @param name
+		 * @return
+		 */
 		public function getChildByName(name:String):DisplayObject
 		{
-			for each (var child:DisplayObject in children)
+			_childrenLength = children.length;
+			for (var i:int = 0; i < _childrenLength; i++)
 			{
-				if (child.name == name)
+				if (children[i].name == name)
 				{
-					return child;
+					return children[i];
 				}
 			}
 
 			return null;
 		}
 
-		public function addChild(obj:QDisplayObject):void
+		/**
+		 * Add a display object at the end of the list.
+		 * @param obj
+		 */
+		public function addChild(obj:DisplayObject):void
 		{
-			if (obj != null)
+			if (obj != null && !(obj is Stage))
 			{
 				children.push(obj);
 				if (obj.stage == null)
@@ -53,11 +66,16 @@ package echelon.display
 			}
 		}
 
-		public function addChildAt(obj:QDisplayObject, index:uint):void
+		/**
+		 * Insert a display object at the specified index of the list.
+		 * @param obj
+		 * @param index
+		 */
+		public function addChildAt(obj:DisplayObject, index:uint):void
 		{
-			if (obj != null)
+			if (obj != null && !(obj is Stage))
 			{
-				if (children.length == 0 || index < children.length)
+				if (children.length == 0 || index <= children.length)
 				{
 					children.splice(index, 0, obj);
 				}
@@ -77,7 +95,11 @@ package echelon.display
 			}
 		}
 
-		public function removeChild(obj:QDisplayObject):void
+		/**
+		 * Remove a display object from the list.
+		 * @param obj
+		 */
+		public function removeChild(obj:DisplayObject):void
 		{
 			if (obj != null)
 			{
@@ -93,6 +115,10 @@ package echelon.display
 			}
 		}
 
+		/**
+		 * Remove a display object at the specified index from the list.
+		 * @param index
+		 */
 		public function removeChildAt(index:int):void
 		{
 			if (index < children.length)
@@ -105,29 +131,21 @@ package echelon.display
 			}
 		}
 
+		/**
+		 * Addes the transforms from the previous display object and the transverses through
+		 * the list of children.
+		 * @param time
+		 * @param transform
+		 */
 		override public function render(time:Time, transform:RenderFrameTransform = null):void
 		{
-			//  This is just a copy of the 'renderChildren' method that is used by subclasses.
-			//  We want to avoid a extra function call here, so that's why.
-			_renderTrans = new RenderFrameTransform();
+			_renderTrans.clear();
 			_renderTrans.pos = transform.pos.add(this.pos);
 
-			var len:int = children.length;
-			for (var i:int = 0; i < len; i++)
+			_childrenLength = children.length;
+			for (_iterator = 0; _iterator < _childrenLength; _iterator++)
 			{
-				children[i].render(time, _renderTrans);
-			}
-		}
-
-		protected function renderChildren(time:Time, transform:RenderFrameTransform):void
-		{
-			_renderTrans = new RenderFrameTransform();
-			_renderTrans.pos = transform.pos.add(this.pos);
-
-			var len:int = children.length;
-			for (var i:int = 0; i < len; i++)
-			{
-				children[i].render(time, _renderTrans);
+				children[_iterator].render(time, _renderTrans);
 			}
 		}
 	}
